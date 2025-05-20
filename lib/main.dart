@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:translator/translator.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(TranslatorApp());
@@ -35,6 +37,7 @@ class _TranslatorPageState extends State<TranslatorPage> {
   bool _isPaused = false;
   bool _showControlButtons = false;
   String _translatedText = '';
+  String _currentLocaleId = 'en_US';
   String _selectedLanguage = 'id';
   Timer? _debounce;
 
@@ -46,7 +49,32 @@ class _TranslatorPageState extends State<TranslatorPage> {
     'Japanese': 'ja',
   };
 
-  String _currentLocaleId = 'en_US';
+  Future<String> summarizeText(String text) async {
+    const apiKey = 'API_KEY'; // Ganti dengan token dari huggingface.co
+
+    final response = await http.post(
+      Uri.parse(
+        'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+      ),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({"inputs": text}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data is List && data.isNotEmpty && data[0]['summary_text'] != null) {
+        return data[0]['summary_text'];
+      } else {
+        return "Ringkasan tidak tersedia.";
+      }
+    } else {
+      print('HuggingFace error: ${response.body}');
+      throw Exception('Gagal meringkas: ${response.statusCode}');
+    }
+  }
 
   @override
   void initState() {
@@ -110,8 +138,6 @@ class _TranslatorPageState extends State<TranslatorPage> {
           });
         },
       );
-    } else {
-      print('Speech recognition not available');
     }
   }
 
@@ -128,8 +154,11 @@ class _TranslatorPageState extends State<TranslatorPage> {
       _isPaused = false;
       _isListening = true;
     });
+
     await _speech.listen(
       localeId: localeId,
+      listenFor: Duration(hours: 1),
+      pauseFor: Duration(hours: 1),
       onResult: (result) {
         setState(() {
           _controller.text = result.recognizedWords;
@@ -163,9 +192,6 @@ class _TranslatorPageState extends State<TranslatorPage> {
               title: Text(locale.name ?? locale.localeId),
               onTap: () {
                 Navigator.pop(context);
-                setState(() {
-                  _currentLocaleId = locale.localeId;
-                });
                 _startListeningWithLocale(locale.localeId);
               },
             );
@@ -218,45 +244,6 @@ class _TranslatorPageState extends State<TranslatorPage> {
           ),
         );
       },
-    );
-  }
-
-  Widget buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(top: 60, bottom: 30),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color.fromARGB(255, 3, 143, 236),
-            const Color.fromARGB(255, 137, 187, 233),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.language, color: Colors.yellow, size: 32),
-          SizedBox(height: 10),
-          Text(
-            'Realtime Translator',
-            style: TextStyle(
-              fontSize: 28,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Translate anything instantly',
-            style: TextStyle(color: Colors.white70),
-          ),
-        ],
-      ),
     );
   }
 
@@ -327,7 +314,42 @@ class _TranslatorPageState extends State<TranslatorPage> {
         children: [
           Column(
             children: [
-              buildHeader(),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.only(top: 60, bottom: 30),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color.fromARGB(255, 3, 143, 236),
+                      const Color.fromARGB(255, 137, 187, 233),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.language, color: Colors.yellow, size: 32),
+                    SizedBox(height: 10),
+                    Text(
+                      'Realtime Translator',
+                      style: TextStyle(
+                        fontSize: 28,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Translate anything instantly',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
@@ -423,6 +445,32 @@ class _TranslatorPageState extends State<TranslatorPage> {
                                 ],
                               ),
                             ),
+                            SizedBox(height: 10),
+                            if (_translatedText.isNotEmpty)
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  final summary = await summarizeText(
+                                    _translatedText,
+                                  );
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => AlertDialog(
+                                          title: Text("Ringkasan"),
+                                          content: Text(summary),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(context),
+                                              child: Text("Tutup"),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+                                },
+                                icon: Icon(Icons.summarize),
+                                label: Text("Ringkas"),
+                              ),
                           ],
                         ),
                       ),
