@@ -4,7 +4,7 @@
 
 <p align="center">
   <img
-    src="https://github.com/williamtheodoruswijaya/VoxA/blob/b64f017451bcbf01165ce5bf71ada405f5ad9075/prototype/VoxA.png"
+    src="https://github.com/williamtheodoruswijaya/VoxA/blob/95a20a5f21379affc27246799d723472c17a9221/VoxA.png"
     alt="VoxA Logo"
     width="200"
   />
