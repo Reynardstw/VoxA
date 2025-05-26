@@ -14,6 +14,7 @@ import (
 type UserService interface {
 	Create(ctx context.Context, request request.UserRequest) (*response.UserResponse, error)
 	Find(ctx context.Context, email string) (*response.UserResponse, error)
+	Login(ctx context.Context, request request.AuthRequest) (*string, error)
 }
 
 type UserServiceImpl struct {
@@ -87,4 +88,34 @@ func (s *UserServiceImpl) Find(ctx context.Context, email string) (*response.Use
 	}
 
 	return searchedUser, nil
+}
+
+func (s *UserServiceImpl) Login(ctx context.Context, request request.AuthRequest) (*string, error) {
+	err := utils.ValidateUserLogin(request.Email, request.Password)
+	if err != nil {
+		return nil, fmt.Errorf("validation failed: %w", err)
+	}
+
+	user, err := s.UserRepository.Find(ctx, s.DB, request.Email)
+	if err != nil || user == nil {
+		return nil, fmt.Errorf("failed to find user: %w", err)
+	}
+
+	if user.Password != request.Password {
+		return nil, fmt.Errorf("invalid credentials")
+	}
+
+	userResponse := &response.UserResponse{
+		Name:      user.Name,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	token, err := GenerateToken(userResponse)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	return token, nil
 }
