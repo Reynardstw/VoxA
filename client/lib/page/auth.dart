@@ -73,7 +73,10 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             'Sign In',
                             style: TextStyle(
-                              color: isSignIn ? primaryColor : Colors.grey,
+                              color:
+                                  isSignIn
+                                      ? primaryColor
+                                      : const Color.fromARGB(255, 88, 88, 88),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -113,12 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                               color:
                                   !isSignIn
                                       ? primaryColor
-                                      : const Color.fromARGB(
-                                        255,
-                                        190,
-                                        190,
-                                        190,
-                                      ),
+                                      : const Color.fromARGB(255, 88, 88, 88),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
