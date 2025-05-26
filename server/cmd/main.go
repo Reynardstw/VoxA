@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"server/infrastructure/db"
+	"server/internal/api"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -20,4 +21,7 @@ func main() {
 	rdb := redis.NewClient(opt)
 
 	defer rdb.Close()
+
+	router := api.SetupRoutes(database, rdb)
+	router.Run(":8080")
 }
