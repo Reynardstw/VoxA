@@ -1,3 +1,4 @@
+import 'package:client/model/auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -14,6 +15,12 @@ class _LoginPageState extends State<LoginPage> {
   final Color primaryColor = const Color(0xFF2C11A6);
   final Color greyColor = const Color(0xFFFFFFFF);
 
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -22,8 +29,24 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void handleLogin() {
+    final authData = Auth(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    // Buat debugging sambil nunggu backend jadi
+    print("Email: ${authData.email}, Password: ${authData.password}");
+
+    // Panggil backend API disini
   }
 
   @override
@@ -149,6 +172,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // Setting Form buat Register & Login
+  final _formKey = GlobalKey<FormState>();
+
   Widget buildSignInPage() {
     return SingleChildScrollView(
       child: SizedBox(
@@ -159,81 +185,110 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Welcome back,",
-                    style: TextStyle(
-                      fontSize: 32,
-                      color: primaryColor,
-                      fontWeight: FontWeight.w800,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Welcome back,",
+                      style: TextStyle(
+                        fontSize: 32,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const Text(
-                    "Good to see you again",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                    const Text(
+                      "Good to see you again",
+                      style: TextStyle(color: Colors.grey),
+                    ),
 
-                  const SizedBox(
-                    height: 16,
-                  ), // buat ngasih break antara text dengan text-field
-                  // Email field
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 16), // Spasi antara field
-                  // Password field
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                    ),
-                    obscureText: true,
-                  ),
+                    // buat ngasih break antara text dengan text-field
+                    const SizedBox(height: 16),
 
-                  const SizedBox(height: 16), // Spasi antara field
-                  // Sign-in button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
+                    // Email field
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
                       ),
-                      onPressed: () {
-                        // Handle sign-in logic here
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Email is required";
+                        }
+                        // Validasi format email
+                        final emailRegex = RegExp(
+                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                        );
+                        if (!emailRegex.hasMatch(value)) {
+                          return "Please enter a valid email address";
+                        }
+                        return null;
                       },
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(height: 16), // Spasi antara field
+                    // Password field
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Password is required";
+                        }
+                        if (value.length < 6) {
+                          return "Password must be at least 6 characters";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 16), // Spasi antara field
+                    // Sign-in button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            handleLogin();
+                          }
+                        },
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
