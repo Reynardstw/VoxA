@@ -6,8 +6,8 @@ class WelcomePage extends StatelessWidget {
   final Color greyColor;
 
   const WelcomePage({super.key})
-    : primaryColor = const Color(0xFF4B00E0),
-      greyColor = const Color(0xFFE0E0E0);
+    : primaryColor = const Color(0xFF2C11A6),
+      greyColor = const Color(0xFFFFFFFF);
 
   void navigateToLogin(BuildContext context) async {
     await Navigator.push(

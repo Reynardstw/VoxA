@@ -11,8 +11,8 @@ class _LoginPageState extends State<LoginPage> {
   bool isSignIn = true;
   late PageController _pageController;
 
-  final Color primaryColor = const Color(0xFF6200EE);
-  final Color greyColor = const Color(0xFFE0E0E0);
+  final Color primaryColor = const Color(0xFF2C11A6);
+  final Color greyColor = const Color(0xFFFFFFFF);
 
   @override
   void initState() {
@@ -150,10 +150,94 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildSignInPage() {
-    return Center(
-      child: Text(
-        'Sign In Page Placeholder',
-        style: TextStyle(fontSize: 24, color: primaryColor),
+    return SingleChildScrollView(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height - 200,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Welcome back,",
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: primaryColor,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const Text(
+                    "Good to see you again",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+
+                  const SizedBox(
+                    height: 16,
+                  ), // buat ngasih break antara text dengan text-field
+                  // Email field
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16), // Spasi antara field
+                  // Password field
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                    ),
+                    obscureText: true,
+                  ),
+
+                  const SizedBox(height: 16), // Spasi antara field
+                  // Sign-in button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      onPressed: () {
+                        // Handle sign-in logic here
+                      },
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
