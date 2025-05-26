@@ -48,18 +48,13 @@ func Authenticate() gin.HandlerFunc {
 func ValidateToken(c *gin.Context, token string) error {
 	// Split token
 	if !strings.Contains(token, "Bearer") {
-		return nil
+		return fmt.Errorf("token does not contain 'Bearer' prefix")
 	}
 
 	// Extract token string
 	tokenString := strings.Split(token, " ")[1]
 	if tokenString == "" {
-		c.JSON(401, gin.H{
-			"code":    401,
-			"message": "Unauthorized",
-		})
-		c.Abort()
-		return nil
+		return fmt.Errorf("token string is empty")
 	}
 
 	// Load .env file
