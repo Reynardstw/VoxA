@@ -1,4 +1,5 @@
 import 'package:client/model/auth.dart';
+import 'package:client/model/user.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,6 +22,11 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  // Buat controller buat login (terpisah antara login dan register)
+  final TextEditingController _loginEmailController = TextEditingController();
+  final TextEditingController _loginPasswordController =
+      TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -33,20 +39,37 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _loginEmailController.dispose();
+    _loginPasswordController.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
   void handleLogin() {
     final authData = Auth(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
+      _loginEmailController.text.trim(),
+      _loginPasswordController.text.trim(),
     );
 
     // Buat debugging sambil nunggu backend jadi
     print("Email: ${authData.email}, Password: ${authData.password}");
 
-    // Panggil backend API disini
+    // Panggil backend API disini...
+  }
+
+  void handleRegister() {
+    final userData = User(
+      _nameController.text,
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    // Buat debugging sambil nunggu backend jadi
+    print(
+      "Name: ${userData.name}, Email: ${userData.email}, Password: ${userData.password}",
+    );
+
+    // Panggil backend API disini... + jangan lupa begitu udah register, langsung login otomatis
   }
 
   @override
@@ -173,7 +196,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // Setting Form buat Register & Login
-  final _formKey = GlobalKey<FormState>();
+  final _loginFormKey = GlobalKey<FormState>();
+  final _registerFormKey = GlobalKey<FormState>();
 
   Widget buildSignInPage() {
     return SingleChildScrollView(
@@ -186,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Form(
-                key: _formKey,
+                key: _loginFormKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -204,6 +228,154 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     // buat ngasih break antara text dengan text-field
+                    const SizedBox(height: 16),
+
+                    // Email field
+                    TextFormField(
+                      controller: _loginEmailController,
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Email is required";
+                        }
+                        // Validasi format email
+                        final emailRegex = RegExp(
+                          r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                        );
+                        if (!emailRegex.hasMatch(value)) {
+                          return "Please enter a valid email address";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16), // Spasi antara field
+                    // Password field
+                    TextFormField(
+                      controller: _loginPasswordController,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Password is required";
+                        }
+                        if (value.length < 6) {
+                          return "Password must be at least 6 characters";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 32), // Spasi antara field
+                    // Sign-in button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (_loginFormKey.currentState!.validate()) {
+                            handleLogin();
+                          }
+                        },
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildSignUpPage() {
+    return SingleChildScrollView(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height - 200,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Form(
+                key: _registerFormKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hello there,",
+                      style: TextStyle(
+                        fontSize: 32,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const Text(
+                      "We are excited to see you here",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Name field
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: "Name",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                      ),
+                      keyboardType: TextInputType.name,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Name is required";
+                        }
+                        if (value.length < 3) {
+                          return "Name must be at least 3 characters";
+                        }
+                        return null;
+                      },
+                    ),
+
                     const SizedBox(height: 16),
 
                     // Email field
@@ -234,7 +406,9 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16), // Spasi antara field
+
+                    const SizedBox(height: 16),
+
                     // Password field
                     TextFormField(
                       controller: _passwordController,
@@ -260,8 +434,35 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
 
-                    const SizedBox(height: 16), // Spasi antara field
-                    // Sign-in button
+                    const SizedBox(height: 16),
+
+                    // Confirm Password field
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      decoration: InputDecoration(
+                        labelText: "Confirm Password",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Confirm Password is required";
+                        }
+                        if (value != _passwordController.text) {
+                          return "Passwords do not match";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 32), // Spasi antara field
+                    // Sign-up button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -273,12 +474,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            handleLogin();
+                          if (_registerFormKey.currentState!.validate()) {
+                            handleRegister();
                           }
                         },
                         child: const Text(
-                          "Login",
+                          "Register",
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white,
@@ -293,15 +494,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildSignUpPage() {
-    return Center(
-      child: Text(
-        'Sign Up Page Placeholder',
-        style: TextStyle(fontSize: 24, color: primaryColor),
       ),
     );
   }
