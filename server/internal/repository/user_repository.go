@@ -31,10 +31,10 @@ func (r *UserRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, user *entit
 }
 
 func (r *UserRepositoryImpl) Find(ctx context.Context, db *sql.DB, email string) (*entity.User, error) {
-	query := `SELECT userid, name, email, createdat, updatedat FROM users WHERE email = $1`
+	query := `SELECT userid, name, email, password, createdat, updatedat FROM users WHERE email = $1`
 	row := db.QueryRowContext(ctx, query, email)
 	var user entity.User
-	err := row.Scan(&user.UserID, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.UserID, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // User not found

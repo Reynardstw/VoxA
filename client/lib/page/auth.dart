@@ -1,6 +1,9 @@
 import 'package:client/model/auth.dart';
 import 'package:client/model/user.dart';
+import 'package:client/page/home.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +48,14 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void handleLogin() {
+  void navigateToHome(BuildContext context) async {
+    await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  }
+
+  void handleLogin() async {
     final authData = Auth(
       _loginEmailController.text.trim(),
       _loginPasswordController.text.trim(),
@@ -54,22 +64,76 @@ class _LoginPageState extends State<LoginPage> {
     // Buat debugging sambil nunggu backend jadi
     print("Email: ${authData.email}, Password: ${authData.password}");
 
-    // Panggil backend API disini...
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8080/api/user/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': authData.email,
+          'password': authData.password,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+        final user = data['user'];
+
+        // TO-DO: Simpan token ke storage lokal (shared_preferences atau secure_storage)
+        print("Login successful! Token: $token");
+
+        navigateToHome(context);
+      } else {
+        print("Login failed: ${response.body}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Login gagal: ${jsonDecode(response.body)['message'] ?? 'Unknown error'}",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Tangani error disini, misalnya tampilkan snackbar atau dialog
+      print("Login failed: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Login failed: $e")));
+    }
   }
 
-  void handleRegister() {
+  void handleRegister() async {
     final userData = User(
       _nameController.text,
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
 
-    // Buat debugging sambil nunggu backend jadi
-    print(
-      "Name: ${userData.name}, Email: ${userData.email}, Password: ${userData.password}",
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8080/api/user/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': userData.name,
+          'email': userData.email,
+          'password': userData.password,
+        }),
+      );
 
-    // Panggil backend API disini... + jangan lupa begitu udah register, langsung login otomatis
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        print("Registrasi berhasil: $data");
+
+        // Tunggu 1 detik agar backend siap
+        await Future.delayed(Duration(seconds: 1));
+
+        // Otomatis login
+        handleLogin();
+      } else {
+        print("Registrasi gagal: $data");
+      }
+    } catch (e) {
+      print("Error saat registrasi: $e");
+    }
   }
 
   @override
