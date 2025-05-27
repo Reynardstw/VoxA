@@ -12,7 +12,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/main ./cmd
 
 # ----------- RUN STAGE --------------
-FROM alpine:latest
+FROM alpine:3.18
 
 RUN apk add --no-cache ca-certificates
 
