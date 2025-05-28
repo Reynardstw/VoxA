@@ -34,8 +34,7 @@ class _HomePageState extends State<HomePage> {
   };
 
   Future<String> summarizeText(String text) async {
-    const apiKey = 'API_KEY';
-
+    const apiKey = ''; //API key hugging face
     final response = await http.post(
       Uri.parse(
         'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
@@ -46,7 +45,6 @@ class _HomePageState extends State<HomePage> {
       },
       body: jsonEncode({"inputs": text}),
     );
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data is List && data.isNotEmpty && data[0]['summary_text'] != null) {
@@ -57,6 +55,29 @@ class _HomePageState extends State<HomePage> {
     } else {
       print('HuggingFace error: ${response.body}');
       throw Exception('Gagal meringkas: ${response.statusCode}');
+    }
+  }
+
+  Future<String> transcribeAudio(String filePath) async {
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://Reynardstw-whisper-transcriber.hf.space/transcribe'),
+    );
+
+    // ✅ Tambahkan token di header
+    request.headers['Authorization'] = '';
+
+    request.files.add(await http.MultipartFile.fromPath('file', filePath));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['text'] ?? 'Transkripsi kosong.';
+    } else {
+      print('Whisper API error: ${response.body}');
+      return 'Gagal transkripsi.';
     }
   }
 
@@ -80,7 +101,6 @@ class _HomePageState extends State<HomePage> {
         setState(() => _translatedText = '');
         return;
       }
-
       final translation = await translator.translate(
         text,
         to: _selectedLanguage,
@@ -95,94 +115,6 @@ class _HomePageState extends State<HomePage> {
       await _flutterTts.setPitch(1.0);
       await _flutterTts.speak(_translatedText);
     }
-  }
-
-  Future<void> _startListeningWithLocale(String localeId) async {
-    bool available = await _speech.initialize(
-      onStatus: (status) => print('STATUS: $status'),
-      onError: (error) => print('ERROR: $error'),
-    );
-
-    if (available) {
-      setState(() {
-        _isListening = true;
-        _isPaused = false;
-        _showControlButtons = true;
-        _currentLocaleId = localeId;
-      });
-
-      await _speech.listen(
-        localeId: localeId,
-        listenFor: Duration(hours: 1),
-        pauseFor: Duration(hours: 1),
-        onResult: (result) {
-          setState(() {
-            _controller.text = result.recognizedWords;
-            _onTextChanged(result.recognizedWords);
-          });
-        },
-      );
-    }
-  }
-
-  Future<void> _pauseListening() async {
-    await _speech.stop();
-    setState(() {
-      _isPaused = true;
-      _isListening = false;
-    });
-  }
-
-  Future<void> _resumeListening(String localeId) async {
-    setState(() {
-      _isPaused = false;
-      _isListening = true;
-    });
-
-    await _speech.listen(
-      localeId: localeId,
-      listenFor: Duration(hours: 1),
-      pauseFor: Duration(hours: 1),
-      onResult: (result) {
-        setState(() {
-          _controller.text = result.recognizedWords;
-          _onTextChanged(result.recognizedWords);
-        });
-      },
-    );
-  }
-
-  Future<void> _stopListening() async {
-    await _speech.stop();
-    setState(() {
-      _isListening = false;
-      _isPaused = false;
-      _showControlButtons = false;
-    });
-  }
-
-  void _showLocalePicker(BuildContext context, List<stt.LocaleName> locales) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) {
-        return ListView.builder(
-          itemCount: locales.length,
-          itemBuilder: (_, index) {
-            final locale = locales[index];
-            return ListTile(
-              title: Text(locale.name ?? locale.localeId),
-              onTap: () {
-                Navigator.pop(context);
-                _startListeningWithLocale(locale.localeId);
-              },
-            );
-          },
-        );
-      },
-    );
   }
 
   void _showAudioOptions(BuildContext context) {
@@ -210,8 +142,15 @@ class _HomePageState extends State<HomePage> {
                   if (result != null) {
                     String? filePath = result.files.single.path;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('File dipilih: $filePath')),
+                      SnackBar(
+                        content: Text('Mengirim file untuk ditranskripsi...'),
+                      ),
                     );
+                    final transcribedText = await transcribeAudio(filePath!);
+                    setState(() {
+                      _controller.text = transcribedText;
+                      _onTextChanged(transcribedText);
+                    });
                   }
                 },
               ),
@@ -231,9 +170,93 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showLocalePicker(BuildContext context, List<stt.LocaleName> locales) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return ListView.builder(
+          itemCount: locales.length,
+          itemBuilder: (_, index) {
+            final locale = locales[index];
+            return ListTile(
+              title: Text(locale.name ?? locale.localeId),
+              onTap: () {
+                Navigator.pop(context);
+                _startListeningWithLocale(locale.localeId);
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _startListeningWithLocale(String localeId) async {
+    bool available = await _speech.initialize(
+      onStatus: (status) => print('STATUS: $status'),
+      onError: (error) => print('ERROR: $error'),
+    );
+    if (available) {
+      setState(() {
+        _isListening = true;
+        _isPaused = false;
+        _showControlButtons = true;
+        _currentLocaleId = localeId;
+      });
+      await _speech.listen(
+        localeId: localeId,
+        listenFor: Duration(hours: 1),
+        pauseFor: Duration(hours: 1),
+        onResult: (result) {
+          setState(() {
+            _controller.text = result.recognizedWords;
+            _onTextChanged(result.recognizedWords);
+          });
+        },
+      );
+    }
+  }
+
+  Future<void> _pauseListening() async {
+    await _speech.stop();
+    setState(() {
+      _isPaused = true;
+      _isListening = false;
+    });
+  }
+
+  Future<void> _resumeListening(String localeId) async {
+    setState(() {
+      _isPaused = false;
+      _isListening = true;
+    });
+    await _speech.listen(
+      localeId: localeId,
+      listenFor: Duration(hours: 1),
+      pauseFor: Duration(hours: 1),
+      onResult: (result) {
+        setState(() {
+          _controller.text = result.recognizedWords;
+          _onTextChanged(result.recognizedWords);
+        });
+      },
+    );
+  }
+
+  Future<void> _stopListening() async {
+    await _speech.stop();
+    setState(() {
+      _isListening = false;
+      _isPaused = false;
+      _showControlButtons = false;
+    });
+  }
+
   Widget _buildControlButtons() {
     if (!_showControlButtons) return SizedBox.shrink();
-
     return Positioned(
       bottom: 150,
       left: 0,
@@ -271,7 +294,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAudioOptions(context),
         child: Icon(Icons.add),
-        backgroundColor: Colors.purple,
+        backgroundColor: const Color.fromARGB(255, 3, 143, 236),
         tooltip: 'Pilih input audio',
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -396,9 +419,14 @@ class _HomePageState extends State<HomePage> {
                                       child: Text(entry.key),
                                     );
                                   }).toList(),
-                              onChanged:
-                                  (val) =>
-                                      setState(() => _selectedLanguage = val!),
+                              onChanged: (val) {
+                                setState(() {
+                                  _selectedLanguage = val!;
+                                });
+                                _onTextChanged(
+                                  _controller.text,
+                                ); // langsung update terjemahan
+                              },
                             ),
                             SizedBox(height: 10),
                             Container(

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'pages/loading_page.dart';
 
 void main() {
-  runApp(const TranslatorApp());
+  runApp(const SummarizerApp());
 }
 
-class TranslatorApp extends StatelessWidget {
-  const TranslatorApp({super.key});
+class SummarizerApp extends StatelessWidget {
+  const SummarizerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
