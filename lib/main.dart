@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/loading_page.dart';
+import 'pages/real_home.dart';
 
 void main() {
   runApp(const SummarizerApp());
@@ -13,7 +13,7 @@ class SummarizerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Realtime Translator',
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: LoadingPage(),
+      home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

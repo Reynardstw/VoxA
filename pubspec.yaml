@@ -21,3 +21,15 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/flags/indonesia.png
+    - assets/flags/spain.png
+    - assets/flags/america.png
+    - assets/flags/japan.png
+    - assets/flags/france.png
+    - assets/icons/audio.png
+    - assets/icons/record.png
+    - assets/icons/summarize.png
+    - assets/icons/summary.png
+    - assets/icons/translate.png
+    - assets/icons/profile.png

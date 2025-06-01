@@ -14,7 +14,6 @@ class _LoadingPageState extends State<LoadingPage> {
   void initState() {
     super.initState();
 
-    // Simulasi loading 2 detik, lalu lanjut ke HomePage
     Future.delayed(Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
