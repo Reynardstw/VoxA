@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.aol_se"
+    namespace = "com.example.client"
     compileSdk = 35
     ndkVersion = "27.0.12077973"
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.aol_se"
+        applicationId = "com.example.client"
         minSdk = 21
         targetSdk = 35
         versionCode = 1
