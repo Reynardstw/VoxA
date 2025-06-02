@@ -88,7 +88,7 @@ class FeaturesPage extends StatelessWidget {
             ),
             buildFeatureTile(
               'assets/icons/translate.png',
-              'Translate to other language',
+              'Translate to other languages',
               Colors.orange,
               () => navigateTo(context, const TranslatePage()),
             ),
