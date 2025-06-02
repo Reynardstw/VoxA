@@ -1,17 +1,20 @@
-import 'package:client/page/welcome.dart';
 import 'package:flutter/material.dart';
+import 'pages/loading_page.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(const SummarizerApp());
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SummarizerApp extends StatelessWidget {
+  const SummarizerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'VoxA',
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: LoadingPage(),
       debugShowCheckedModeBanner: false,
-      title: 'VoxA AI Summarizer',
-      home: WelcomePage(),
     );
   }
 }
