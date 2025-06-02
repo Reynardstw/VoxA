@@ -1,6 +1,6 @@
 {
-    "name": "client",
-    "short_name": "client",
+    "name": "aol_se",
+    "short_name": "aol_se",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
