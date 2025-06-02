@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'translate_page.dart';
+import 'features_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  void navigateTo(BuildContext context, Widget page) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+  }
 
   Widget buildFeatureCard({
     required String title,
@@ -9,62 +15,67 @@ class HomePage extends StatelessWidget {
     required String iconPath,
     required Color gradientStart,
     required Color gradientEnd,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [gradientStart, gradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [gradientStart, gradientEnd],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
         ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Stack(
-          children: [
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Image.asset(
-                iconPath,
-                width: 36,
-                height: 36,
-                fit: BoxFit.contain,
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        description,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Image.asset(
+                  iconPath,
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.contain,
                 ),
-              ],
-            ),
-          ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          description,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -109,58 +120,68 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo.shade100,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              "Record",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                InkWell(
+                  onTap: () => navigateTo(context, const Placeholder()),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade100,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                "Record",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            Text(
-                              "your activity now",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Our AI can listen to your meeting, lectures, and so many more...",
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ],
+                              Text(
+                                "your activity now",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Our AI can listen to your meeting, lectures, and so many more...",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Image.asset(
-                        'assets/icons/record.png',
-                        width: 40,
-                        height: 40,
-                      ),
-                    ],
+                        Image.asset(
+                          'assets/icons/record.png',
+                          width: 40,
+                          height: 40,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Highlights",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text("View more", style: TextStyle(color: Colors.grey)),
+                    GestureDetector(
+                      onTap: () => navigateTo(context, const FeaturesPage()),
+                      child: const Text(
+                        "View more",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -178,6 +199,7 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/summary.png',
                       gradientStart: Colors.pink.shade100,
                       gradientEnd: Colors.purple.shade100,
+                      onTap: () => navigateTo(context, const Placeholder()),
                     ),
                     buildFeatureCard(
                       title: 'Summarize from Text',
@@ -185,6 +207,7 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/summarize.png',
                       gradientStart: Colors.orange.shade100,
                       gradientEnd: Colors.yellow.shade100,
+                      onTap: () => navigateTo(context, const Placeholder()),
                     ),
                     buildFeatureCard(
                       title: 'Summarize from Audio',
@@ -193,6 +216,7 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/audio.png',
                       gradientStart: Colors.pink.shade200,
                       gradientEnd: Colors.red.shade100,
+                      onTap: () => navigateTo(context, const Placeholder()),
                     ),
                     buildFeatureCard(
                       title: 'Translate to other languages',
@@ -200,6 +224,7 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/translate.png',
                       gradientStart: Colors.blue.shade100,
                       gradientEnd: Colors.purple.shade100,
+                      onTap: () => navigateTo(context, const TranslatePage()),
                     ),
                   ],
                 ),

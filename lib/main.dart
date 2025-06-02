@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/real_home.dart';
+import 'pages/loading_page.dart';
 
 void main() {
   runApp(const SummarizerApp());
@@ -11,9 +11,9 @@ class SummarizerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Realtime Translator',
+      title: 'VoxA',
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: HomePage(),
+      home: LoadingPage(),
       debugShowCheckedModeBanner: false,
     );
   }
