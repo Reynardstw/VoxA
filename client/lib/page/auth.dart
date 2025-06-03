@@ -1,6 +1,6 @@
 import 'package:client/model/auth.dart';
 import 'package:client/model/user.dart';
-import 'package:client/page/home.dart';
+import 'package:client/page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

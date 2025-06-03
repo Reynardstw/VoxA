@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/loading_page.dart';
+import 'page/loading_page.dart';
 
 void main() {
   runApp(const SummarizerApp());
