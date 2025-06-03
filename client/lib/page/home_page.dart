@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'translate_page.dart';
 import 'features_page.dart';
+import 'recording_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -121,7 +122,7 @@ class HomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 InkWell(
-                  onTap: () => navigateTo(context, const Placeholder()),
+                  onTap: () => navigateTo(context, const RecordingPage()),
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     padding: const EdgeInsets.all(20),

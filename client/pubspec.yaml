@@ -15,6 +15,7 @@ dependencies:
   http: ^1.1.0
   animated_text_kit: ^4.2.2
   lottie: ^2.2.0
+  flutter_audio_waveforms: ^1.1.0
   
 dev_dependencies:
   flutter_test:
@@ -37,3 +38,5 @@ flutter:
     - assets/icons/profile.png
     - assets/icons/voxa_cat.png
     - assets/animations/voxa_cat.json
+    - assets/animations/mic.json
+    - assets/icons/mic_record.png

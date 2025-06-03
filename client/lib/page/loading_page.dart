@@ -92,8 +92,6 @@ class _LoadingPageState extends State<LoadingPage> {
   }
 
   void startErasing() {
-    final fullText = texts[currentTextIndex];
-
     erasingTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
       setState(() {
         if (displayText.isNotEmpty) {
