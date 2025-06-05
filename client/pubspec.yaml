@@ -40,3 +40,4 @@ flutter:
     - assets/animations/voxa_cat.json
     - assets/animations/mic.json
     - assets/icons/mic_record.png
+    - assets/animations/loading.json

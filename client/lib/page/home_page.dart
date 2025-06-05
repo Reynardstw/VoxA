@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'translate_page.dart';
 import 'features_page.dart';
 import 'recording_page.dart';
+import 'import_audio_page.dart';
+import 'summary_page.dart';
+import 'history.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -200,7 +203,7 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/summary.png',
                       gradientStart: Colors.pink.shade100,
                       gradientEnd: Colors.purple.shade100,
-                      onTap: () => navigateTo(context, const Placeholder()),
+                      onTap: () => navigateTo(context, const HistoryPage()),
                     ),
                     buildFeatureCard(
                       title: 'Summarize from Text',
@@ -208,7 +211,13 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/summarize.png',
                       gradientStart: Colors.orange.shade100,
                       gradientEnd: Colors.yellow.shade100,
-                      onTap: () => navigateTo(context, const Placeholder()),
+                      onTap:
+                          () => navigateTo(
+                            context,
+                            const SummaryPage(
+                              transcribedText: "Isi teks untuk disummarize",
+                            ),
+                          ),
                     ),
                     buildFeatureCard(
                       title: 'Summarize from Audio',
@@ -217,7 +226,7 @@ class HomePage extends StatelessWidget {
                       iconPath: 'assets/icons/audio.png',
                       gradientStart: Colors.pink.shade200,
                       gradientEnd: Colors.red.shade100,
-                      onTap: () => navigateTo(context, const Placeholder()),
+                      onTap: () => navigateTo(context, const ImportAudioPage()),
                     ),
                     buildFeatureCard(
                       title: 'Translate to other languages',
