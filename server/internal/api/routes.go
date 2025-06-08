@@ -50,8 +50,8 @@ func initRoutes(h Handlers) *gin.Engine {
 	summary := api.Group("/summary")
 	{
 		summary.Use(middleware.Authenticate())
-		summary.POST("/", h.UserHandler.Create)
-		summary.GET("/:id", h.UserHandler.Find)
+		summary.POST("/", h.SummaryHandler.Create)
+		summary.GET("/:id", h.SummaryHandler.Find)
 	}
 	return router
 }
