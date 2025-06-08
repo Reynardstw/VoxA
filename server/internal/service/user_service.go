@@ -84,6 +84,7 @@ func (s *UserServiceImpl) Find(ctx context.Context, email string) (*response.Use
 		ID:       user.UserID,
 		Name:     user.Name,
 		Email:    user.Email,
+		ProfileURL: user.ProfileUrl,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
@@ -111,6 +112,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, request request.AuthRequest
 	userResponse := &response.UserResponse{
 		ID:        user.UserID,
 		Name:      user.Name,
+		ProfileURL: user.ProfileUrl,
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
