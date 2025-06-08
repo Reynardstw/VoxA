@@ -103,8 +103,6 @@ func (s *UserServiceImpl) Login(ctx context.Context, request request.AuthRequest
 		return nil, fmt.Errorf("failed to find user: %w", err)
 	}
 
-	fmt.Print("User found: ", user.Email, "\n")
-	fmt.Print("User password: ", user.Password, "\n")
 	if user.Password != request.Password {
 		return nil, fmt.Errorf("invalid credentials")
 	}
