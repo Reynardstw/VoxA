@@ -14,6 +14,7 @@ import (
 
 type Handlers struct {
 	UserHandler handler.UserHandler
+	SummaryHandler handler.SummaryHandler
 }
 
 func SetupRoutes(db *sql.DB, redisClient *redis.Client) *gin.Engine {
@@ -25,8 +26,13 @@ func initHandler(db *sql.DB, redisClient *redis.Client) Handlers {
 	userRepository := repository.NewUserRepository()
 	userService := service.NewUserService(db, userRepository)
 	userHandler := handler.NewUserHandler(userService, *validator)
+
+	summaryRepository := repository.NewSummaryRepository()
+	summaryService := service.NewSummaryService(db, userRepository, summaryRepository)
+	summaryHandler := handler.NewSummaryHandler(summaryService, *validator)
 	return Handlers{
 		UserHandler: userHandler,
+		SummaryHandler: summaryHandler,
 	}
 }
 
@@ -39,6 +45,13 @@ func initRoutes(h Handlers) *gin.Engine {
 	{
 		user.POST("/register", h.UserHandler.Create)
 		user.POST("/login", h.UserHandler.Login)
+	}
+
+	summary := api.Group("/summary")
+	{
+		summary.Use(middleware.Authenticate())
+		summary.POST("/", h.SummaryHandler.Create)
+		summary.GET("/:id", h.SummaryHandler.Find)
 	}
 	return router
 }
