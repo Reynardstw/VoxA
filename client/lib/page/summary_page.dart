@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:http/http.dart' as http;
 
 class SummaryPage extends StatefulWidget {
   final String? transcribedText;
@@ -15,6 +17,7 @@ class _SummaryPageState extends State<SummaryPage> {
   final FlutterTts flutterTts = FlutterTts();
   final TextEditingController _controller = TextEditingController();
   String _summary = '';
+  bool _isSummarizing = false;
 
   @override
   void initState() {
@@ -24,15 +27,32 @@ class _SummaryPageState extends State<SummaryPage> {
 
     if (widget.transcribedText != null) {
       _controller.text = widget.transcribedText!;
-      _generateSummary();
     }
   }
 
-  void _generateSummary() {
-    String text = _controller.text.trim();
-    setState(() {
-      _summary = text.length > 20 ? "${text.substring(0, 20)}..." : text;
-    });
+  Future<String> summarizeText(String text) async {
+    const apiKey = '';
+    final response = await http.post(
+      Uri.parse(
+        'https://api-inference.huggingface.co/models/facebook/bart-large-cnn', //TODO: ISI API
+      ),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({"inputs": text}),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data is List && data.isNotEmpty && data[0]['summary_text'] != null) {
+        return data[0]['summary_text'];
+      } else {
+        return "Ringkasan tidak tersedia.";
+      }
+    } else {
+      print('HuggingFace error: ${response.body}');
+      throw Exception('Gagal meringkas: ${response.statusCode}');
+    }
   }
 
   Future<void> _speakSummary() async {
@@ -73,11 +93,54 @@ class _SummaryPageState extends State<SummaryPage> {
             TextField(
               controller: _controller,
               maxLines: 5,
-              onChanged: (_) => _generateSummary(),
               decoration: const InputDecoration(
                 hintText: "Tulis teks transkripsi di sini...",
                 border: OutlineInputBorder(),
               ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed:
+                  _isSummarizing
+                      ? null
+                      : () async {
+                        final inputText = _controller.text.trim();
+                        if (inputText.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Teks masih kosong.")),
+                          );
+                          return;
+                        }
+
+                        setState(() {
+                          _isSummarizing = true;
+                          _summary = "Ringkasan sedang diproses...";
+                        });
+
+                        try {
+                          final summary = await summarizeText(inputText);
+                          setState(() {
+                            _summary = summary;
+                          });
+                        } catch (e) {
+                          setState(() {
+                            _summary = "Terjadi kesalahan saat meringkas.";
+                          });
+                        } finally {
+                          setState(() {
+                            _isSummarizing = false;
+                          });
+                        }
+                      },
+              icon:
+                  _isSummarizing
+                      ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Icon(Icons.summarize),
+              label: Text(_isSummarizing ? "Memproses..." : "Ringkas"),
             ),
             const SizedBox(height: 20),
             const Text(

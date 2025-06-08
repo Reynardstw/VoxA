@@ -8,12 +8,13 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:http/http.dart' as http;
 
-class HomePage extends StatefulWidget {
+class ArchivePage extends StatefulWidget {
+  const ArchivePage({super.key});
   @override
-  _HomePageState createState() => _HomePageState();
+  State<ArchivePage> createState() => _ArchivePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ArchivePageState extends State<ArchivePage> {
   final translator = GoogleTranslator();
   final TextEditingController _controller = TextEditingController();
   final FlutterTts _flutterTts = FlutterTts();
