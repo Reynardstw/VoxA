@@ -46,8 +46,9 @@ func Authenticate() gin.HandlerFunc {
 
 		// step 3: Simpan claims ke gin context, agar bisa diakses di handler apa saja.
 		ctx := c.Request.Context() // inisalisasi context-nya
-		contextKeyUsername := "username"
-		contextKeyUserID := "userID"
+		type contextKey string
+		contextKeyUsername := contextKey("username")
+		contextKeyUserID := contextKey("userID")
 		if parsedClaims.User != nil {
 			ctx = context.WithValue(ctx, contextKeyUsername, parsedClaims.User.Name) // simpan username ke context
 			if parsedClaims.User.ID != 0 {
