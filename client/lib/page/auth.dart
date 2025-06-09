@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:client/model/auth.dart';
-import 'package:client/model/user.dart';
+import 'package:client/model/register_user.dart';
 import 'package:client/page/loading_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -57,6 +59,23 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Map<String, dynamic> _decodePayload(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid token');
+    }
+
+    final payload = parts[1];
+    var normalized = base64Url.normalize(payload);
+    var resp = utf8.decode(base64Url.decode(normalized));
+
+    final payloadMap = json.decode(resp);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('Invalid payload');
+    }
+    return payloadMap;
+  }
+
   void handleLogin() async {
     final authData = Auth(
       _loginEmailController.text.trim(),
@@ -75,7 +94,8 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
-        final user = data['user'];
+        final Map<String, dynamic> payload = _decodePayload(token);
+        final user = payload['user'];
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('user', jsonEncode(user));
@@ -94,16 +114,29 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       }
+    } on SocketException {
+      // Tidak ada koneksi internet
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tidak ada koneksi internet.")),
+      );
+    } on FormatException {
+      // Gagal mem-parsing response (mungkin bukan JSON)
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan pada server.")),
+      );
     } catch (e) {
+      // Error umum lainnya
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Login failed: $e")));
+      ).showSnackBar(SnackBar(content: Text("Terjadi kesalahan: $e")));
     }
   }
 
   void handleRegister() async {
-    final userData = User(
+    final userData = RegisterUser(
       _nameController.text,
       _emailController.text.trim(),
       _passwordController.text.trim(),
