@@ -61,8 +61,8 @@ func (r *SummaryRepositoryImpl) GetSummaries(ctx context.Context, db *sql.DB, us
 		}
 		summaries = append(summaries, &summary)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err // Error closing rows
+	if err := rows.Err(); err != nil {
+		return nil, err // Error encountered during iteration
 	}
 	return summaries, nil // Return the list of summaries
 }
