@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:client/model/auth.dart';
-import 'package:client/model/user.dart';
-import 'package:client/page/home_page.dart';
+import 'package:client/model/register_user.dart';
+import 'package:client/page/loading_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -51,8 +55,25 @@ class _LoginPageState extends State<LoginPage> {
   void navigateToHome(BuildContext context) async {
     await Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
+      MaterialPageRoute(builder: (context) => const LoadingPage()),
     );
+  }
+
+  Map<String, dynamic> _decodePayload(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid token');
+    }
+
+    final payload = parts[1];
+    var normalized = base64Url.normalize(payload);
+    var resp = utf8.decode(base64Url.decode(normalized));
+
+    final payloadMap = json.decode(resp);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('Invalid payload');
+    }
+    return payloadMap;
   }
 
   void handleLogin() async {
@@ -60,9 +81,6 @@ class _LoginPageState extends State<LoginPage> {
       _loginEmailController.text.trim(),
       _loginPasswordController.text.trim(),
     );
-
-    // Buat debugging sambil nunggu backend jadi
-    print("Email: ${authData.email}, Password: ${authData.password}");
 
     try {
       final response = await http.post(
@@ -76,33 +94,49 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
-        final user = data['user'];
+        final Map<String, dynamic> payload = _decodePayload(token);
+        final user = payload['user'];
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('user', jsonEncode(user));
 
-        // TO-DO: Simpan token ke storage lokal (shared_preferences atau secure_storage)
-        print("Login successful! Token: $token");
-
-        navigateToHome(context);
+        if (mounted) {
+          navigateToHome(context);
+        }
       } else {
-        print("Login failed: ${response.body}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Login gagal: ${jsonDecode(response.body)['message'] ?? 'Unknown error'}",
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Login gagal: ${jsonDecode(response.body)['message'] ?? 'Unknown error'}",
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
+    } on SocketException {
+      // Tidak ada koneksi internet
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tidak ada koneksi internet.")),
+      );
+    } on FormatException {
+      // Gagal mem-parsing response (mungkin bukan JSON)
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan pada server.")),
+      );
     } catch (e) {
-      // Tangani error disini, misalnya tampilkan snackbar atau dialog
-      print("Login failed: $e");
+      // Error umum lainnya
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Login failed: $e")));
+      ).showSnackBar(SnackBar(content: Text("Terjadi kesalahan: $e")));
     }
   }
 
   void handleRegister() async {
-    final userData = User(
+    final userData = RegisterUser(
       _nameController.text,
       _emailController.text.trim(),
       _passwordController.text.trim(),
@@ -121,18 +155,32 @@ class _LoginPageState extends State<LoginPage> {
 
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        print("Registrasi berhasil: $data");
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Registrasi berhasil!")));
 
-        // Tunggu 1 detik agar backend siap
         await Future.delayed(Duration(seconds: 1));
 
         // Otomatis login
+        _loginEmailController.text = userData.email;
+        _loginPasswordController.text = userData.password;
         handleLogin();
       } else {
-        print("Registrasi gagal: $data");
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Registrasi gagal: ${data['message'] ?? 'Unknown error'}",
+            ),
+          ),
+        );
       }
     } catch (e) {
-      print("Error saat registrasi: $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Registrasi gagal: $e")));
     }
   }
 

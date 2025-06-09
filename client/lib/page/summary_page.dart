@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SummaryPage extends StatefulWidget {
   final String? transcribedText;
@@ -18,6 +20,7 @@ class _SummaryPageState extends State<SummaryPage> {
   final TextEditingController _controller = TextEditingController();
   String _summary = '';
   bool _isSummarizing = false;
+  String? token;
 
   @override
   void initState() {
@@ -28,6 +31,32 @@ class _SummaryPageState extends State<SummaryPage> {
     if (widget.transcribedText != null) {
       _controller.text = widget.transcribedText!;
     }
+  }
+
+  Future<bool> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? storedToken = prefs.getString('token');
+    if (storedToken == null) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Token not found. Please log in again.')),
+      );
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      return false;
+    }
+    setState(() {
+      token = storedToken;
+    });
+    return true;
+  }
+
+  Future<String> _getAPIKey() async {
+    await dotenv.load(fileName: ".env");
+    final apiKey = dotenv.env['HUGGINGFACE_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      throw Exception('HUGGINGFACE_API_KEY not found in .env file');
+    }
+    return apiKey;
   }
 
   Future<String> summarizeText(String text) async {
@@ -46,13 +75,66 @@ class _SummaryPageState extends State<SummaryPage> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data is List && data.isNotEmpty && data[0]['summary_text'] != null) {
+        setState(() {
+          _summary = data[0]['summary_text'];
+        });
+        await _storeSummary(_summary);
+        if (!mounted) return _summary;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ringkasan berhasil disimpan.")),
+        );
         return data[0]['summary_text'];
       } else {
         return "Ringkasan tidak tersedia.";
       }
     } else {
-      print('HuggingFace error: ${response.body}');
+      if (!mounted) return "Gagal meringkas.";
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal meringkas. Coba lagi.")),
+      );
       throw Exception('Gagal meringkas: ${response.statusCode}');
+    }
+  }
+
+  Future<void> _storeSummary(String summary) async {
+    final tokenRetrieved = await _getToken();
+    if (!tokenRetrieved) return;
+    if (summary.trim().isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Ringkasan masih kosong.")));
+      return;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8080/api/summary/'),
+        headers: {
+          'Authorization': 'Bearer ${token ?? ''}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'title': 'Summary', 'content': summary}),
+      );
+      if (response.statusCode == 201) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ringkasan berhasil disimpan.")),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Gagal menyimpan ringkasan: ${response.reasonPhrase}",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menyimpan ringkasan.")),
+      );
     }
   }
 

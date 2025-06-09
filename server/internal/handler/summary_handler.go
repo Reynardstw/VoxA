@@ -15,6 +15,7 @@ import (
 type SummaryHandler interface {
 	Create(c *gin.Context)
 	Find(c *gin.Context)
+	GetSummaries(c *gin.Context)
 }
 
 type SummaryHandlerImpl struct {
@@ -97,6 +98,28 @@ func (h *SummaryHandlerImpl) Find(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,
 			"message": "Summary found successfully",
+			"data": response,
+		})
+		return
+	}
+}
+
+func (h *SummaryHandlerImpl) GetSummaries(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	response, err := h.SummaryService.GetSummaries(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": http.StatusInternalServerError,
+			"message": "Failed to retrieve summaries",
+			"error": err.Error(),
+		})
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"message": "Summaries retrieved successfully",
 			"data": response,
 		})
 		return
