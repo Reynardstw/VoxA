@@ -32,9 +32,10 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Future<String> summarizeText(String text) async {
     const apiKey = '';
+    //TODO: ISI API
     final response = await http.post(
       Uri.parse(
-        'https://api-inference.huggingface.co/models/facebook/bart-large-cnn', //TODO: ISI API
+        'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
       ),
       headers: {
         'Authorization': 'Bearer $apiKey',
