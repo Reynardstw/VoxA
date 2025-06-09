@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'summary_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ImportAudioPage extends StatefulWidget {
   const ImportAudioPage({super.key});
@@ -21,8 +22,11 @@ class _ImportAudioPageState extends State<ImportAudioPage> {
       'POST',
       Uri.parse('https://Reynardstw-whisper-transcriber.hf.space/transcribe'),
     );
-    // TODO: Isi API
-    request.headers['Authorization'] = '';
+
+    final apiKey = dotenv.env['WHISPER_API_KEY'] ?? '';
+    if (apiKey.isNotEmpty) {
+      request.headers['Authorization'] = apiKey;
+    }
 
     request.files.add(await http.MultipartFile.fromPath('file', filePath));
 

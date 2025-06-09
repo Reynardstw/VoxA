@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SummaryPage extends StatefulWidget {
   final String? transcribedText;
@@ -50,18 +51,12 @@ class _SummaryPageState extends State<SummaryPage> {
     return true;
   }
 
-  Future<String> _getAPIKey() async {
-    await dotenv.load(fileName: ".env");
+  Future<String> summarizeText(String text) async {
     final apiKey = dotenv.env['HUGGINGFACE_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('HUGGINGFACE_API_KEY not found in .env file');
+      throw Exception('API key dari .env tidak ditemukan');
     }
-    return apiKey;
-  }
 
-  Future<String> summarizeText(String text) async {
-    const apiKey = '';
-    //TODO: ISI API
     final response = await http.post(
       Uri.parse(
         'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
@@ -72,6 +67,7 @@ class _SummaryPageState extends State<SummaryPage> {
       },
       body: jsonEncode({"inputs": text}),
     );
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data is List && data.isNotEmpty && data[0]['summary_text'] != null) {

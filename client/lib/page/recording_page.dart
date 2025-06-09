@@ -8,7 +8,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'summary_page.dart';
 
 class RecordingPage extends StatefulWidget {
@@ -125,8 +125,11 @@ class _RecordingPageState extends State<RecordingPage> {
         'POST',
         Uri.parse('https://Reynardstw-whisper-transcriber.hf.space/transcribe'),
       );
-      // TODO: Isi API key
-      request.headers['Authorization'] = '';
+
+      final apiKey = dotenv.env['WHISPER_API_KEY'] ?? '';
+      if (apiKey.isNotEmpty) {
+        request.headers['Authorization'] = apiKey;
+      }
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
       final streamedResponse = await request.send();
