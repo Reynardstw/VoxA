@@ -20,6 +20,8 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 
+COPY .env .env
+
 COPY ./cmd/migrate/migrations ./cmd/migrate/migrations
 
 EXPOSE 8080
