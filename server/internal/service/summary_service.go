@@ -14,6 +14,7 @@ import (
 type SummaryService interface {
 	Create(ctx context.Context, req request.SummaryRequest) (*response.SummaryResponse, error)
 	Find(ctx context.Context, summaryID int) (*response.SummaryResponse, error)
+	GetSummaries(ctx context.Context) ([]*response.SummaryResponse, error) 
 }
 
 type SummaryServiceImpl struct {
@@ -92,4 +93,35 @@ func (s *SummaryServiceImpl) Find(ctx context.Context, summaryID int) (*response
 	}
 
 	return responseSummary, nil
+}
+
+func (s *SummaryServiceImpl) GetSummaries(ctx context.Context) ([]*response.SummaryResponse, error) {
+	userIDInterface := ctx.Value(middleware.ContextKeyUserID)
+	userID, ok := userIDInterface.(int)
+	if !ok {
+		return nil, fmt.Errorf("invalid user ID in context")
+	}
+
+	summaries, err := s.SummaryRepository.GetSummaries(ctx, s.DB, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving summaries: %v", err)
+	}
+
+	var responseSummaries []*response.SummaryResponse
+	for _, summary := range summaries {
+		responseSummaries = append(responseSummaries, &response.SummaryResponse{
+			SummaryID: summary.SummaryID,
+			UserID:	summary.UserID,
+			Title:     summary.Title,
+			Content:   summary.Content,
+			CreatedAt: summary.CreatedAt,
+			UpdatedAt: summary.UpdatedAt,
+		})
+	}
+
+	if len(responseSummaries) == 0 {
+		return []*response.SummaryResponse{}, nil
+	}
+
+	return responseSummaries, nil
 }
