@@ -1,28 +1,90 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class HistoryPage extends StatelessWidget {
+import 'package:client/model/summary.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy data riwayat untuk contoh layout
-    final List<Map<String, String>> historyList = [
-      {'testing': 'testing', 'hasil': 'Ini adalah hasil...'},
-      {'testing': 'testing', 'hasil': 'Contoh kedua trans...'},
-      {'testing': 'testing', 'hasil': 'Audio meeting tan...'},
-    ];
+  State<HistoryPage> createState() => _HistoryPageState();
+}
 
+class _HistoryPageState extends State<HistoryPage> {
+  List<Summary> summaries = [];
+  bool isLoading = true;
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSummaries();
+  }
+
+  Future<void> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? storedToken = prefs.getString('token');
+    if (storedToken == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Token not found. Please log in again.')),
+      );
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      return;
+    }
+    setState(() {
+      token = storedToken;
+    });
+  }
+
+  Future<void> fetchSummaries() async {
+    await _getToken();
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8080/api/summary/'),
+      headers: {
+        'Authorization': 'Bearer ${token ?? ''}',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+      final List<dynamic> data = jsonResponse['data'];
+
+      setState(() {
+        summaries = data.map((item) => Summary.fromJson(item)).toList();
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching summaries: ${response.reasonPhrase}'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Summary History')),
       body:
-          historyList.isEmpty
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : summaries.isEmpty
               ? const Center(child: Text('No history'))
               : ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: historyList.length,
+                itemCount: summaries.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
-                  final item = historyList[index];
+                  final summary = summaries[index];
                   return Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -40,17 +102,19 @@ class HistoryPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Transkripsi:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          'Judul: ${summary.title}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
-                        Text(item['original'] ?? '-'),
                         const SizedBox(height: 8),
                         const Text(
                           'Ringkasan:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text(item['summary'] ?? '-'),
+                        Text(summary.content),
                       ],
                     ),
                   );
