@@ -19,6 +19,12 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+type contextKey string
+const (
+	ContextKeyUserID contextKey = "userID"
+	ContextKeyUsername contextKey = "username"
+)
+
 func Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// step 1: ambil header authorization dari request
@@ -38,7 +44,7 @@ func Authenticate() gin.HandlerFunc {
 			log.Printf("Token validation error: %v\n", err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code":    http.StatusUnauthorized,
-				"message": fmt.Sprintf("Unauthorized - Invalid token"),
+				"message": "Unauthorized - Invalid token",
 			})
 			c.Abort()
 			return
@@ -46,13 +52,10 @@ func Authenticate() gin.HandlerFunc {
 
 		// step 3: Simpan claims ke gin context, agar bisa diakses di handler apa saja.
 		ctx := c.Request.Context() // inisalisasi context-nya
-		type contextKey string
-		contextKeyUsername := contextKey("username")
-		contextKeyUserID := contextKey("userID")
 		if parsedClaims.User != nil {
-			ctx = context.WithValue(ctx, contextKeyUsername, parsedClaims.User.Name) // simpan username ke context
+			ctx = context.WithValue(ctx, ContextKeyUsername, parsedClaims.User.Name) // simpan username ke context
 			if parsedClaims.User.ID != 0 {
-				ctx = context.WithValue(ctx, contextKeyUserID, parsedClaims.User.ID) // simpan userID ke context
+				ctx = context.WithValue(ctx, ContextKeyUserID, parsedClaims.User.ID) // simpan userID ke context
 			} else {
 				// seandainya userID tidak ada di token, biasanya error ini terjadi kalau token dibuat sebelum userID ditambahkan ke claims
 				log.Println("UserID is missing or zero in token claims for user:", parsedClaims.User.Name)

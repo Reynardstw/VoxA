@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"server/internal/entity"
+	"server/internal/middleware"
 	"server/internal/model/request"
 	"server/internal/model/response"
 	"server/internal/repository"
@@ -42,7 +43,7 @@ func (s *SummaryServiceImpl) Create(ctx context.Context, req request.SummaryRequ
 	}()
 
 	// Get user by ID on context
-	userIDInterface := ctx.Value("userID")
+	userIDInterface := ctx.Value(middleware.ContextKeyUserID)
 	userID, ok := userIDInterface.(int)
 	if !ok {
 		return nil, fmt.Errorf("invalid user ID in context")
