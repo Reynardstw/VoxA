@@ -163,9 +163,15 @@ class _HomePageState extends State<HomePage> {
                       height: 40,
                       decoration: BoxDecoration(
                         color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(20),
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                            _user?.profileUrl ??
+                                'https://via.placeholder.com/150',
+                          ),
+                        ),
                       ),
-                      child: const Icon(Icons.person),
                     ),
                   ],
                 ),
