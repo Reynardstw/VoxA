@@ -104,7 +104,7 @@ func (s *SummaryServiceImpl) GetSummaries(ctx context.Context) ([]*response.Summ
 
 	summaries, err := s.SummaryRepository.GetSummaries(ctx, s.DB, userID)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving summaries: %v", err)
+		return nil, fmt.Errorf("error retrieving summaries: %w", err)
 	}
 
 	var responseSummaries []*response.SummaryResponse
