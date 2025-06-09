@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,8 +50,17 @@ class _SummaryPageState extends State<SummaryPage> {
     return true;
   }
 
+  Future<String> _getAPIKey() async {
+    await dotenv.load(fileName: ".env");
+    final apiKey = dotenv.env['HUGGINGFACE_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      throw Exception('HUGGINGFACE_API_KEY not found in .env file');
+    }
+    return apiKey;
+  }
+
   Future<String> summarizeText(String text) async {
-    const apiKey = '';
+    final apiKey = await _getAPIKey();
     final response = await http.post(
       Uri.parse(
         'https://api-inference.huggingface.co/models/facebook/bart-large-cnn', //TODO: ISI API
