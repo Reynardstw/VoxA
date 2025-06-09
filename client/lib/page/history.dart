@@ -23,24 +23,26 @@ class _HistoryPageState extends State<HistoryPage> {
     fetchSummaries();
   }
 
-  Future<void> _getToken() async {
+  Future<bool> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final String? storedToken = prefs.getString('token');
     if (storedToken == null) {
-      if (!mounted) return;
+      if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Token not found. Please log in again.')),
       );
       Navigator.of(context).popUntil((route) => route.isFirst);
-      return;
+      return false;
     }
     setState(() {
       token = storedToken;
     });
+    return true;
   }
 
   Future<void> fetchSummaries() async {
-    await _getToken();
+    final tokenRetrieved = await _getToken();
+    if (!tokenRetrieved) return;
     final response = await http.get(
       Uri.parse('http://10.0.2.2:8080/api/summary/'),
       headers: {
