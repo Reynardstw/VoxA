@@ -16,7 +16,8 @@ dependencies:
   animated_text_kit: ^4.2.2
   lottie: ^2.2.0
   flutter_audio_waveforms: ^1.1.0
-  
+  shared_preferences: ^2.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -41,3 +42,4 @@ flutter:
     - assets/animations/mic.json
     - assets/icons/mic_record.png
     - assets/animations/loading.json
+    - images/icon.png

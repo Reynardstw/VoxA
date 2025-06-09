@@ -1,5 +1,5 @@
+import 'package:client/page/welcome.dart';
 import 'package:flutter/material.dart';
-import 'page/loading_page.dart';
 
 void main() {
   runApp(const SummarizerApp());
@@ -13,7 +13,7 @@ class SummarizerApp extends StatelessWidget {
     return MaterialApp(
       title: 'VoxA',
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: LoadingPage(),
+      home: WelcomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
