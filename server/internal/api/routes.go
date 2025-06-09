@@ -52,6 +52,7 @@ func initRoutes(h Handlers) *gin.Engine {
 		summary.Use(middleware.Authenticate())
 		summary.POST("/", h.SummaryHandler.Create)
 		summary.GET("/:id", h.SummaryHandler.Find)
+		summary.GET("/", h.SummaryHandler.GetSummaries)
 	}
 	return router
 }

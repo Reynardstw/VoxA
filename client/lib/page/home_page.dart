@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:client/model/user.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'translate_page.dart';
 import 'features_page.dart';
 import 'recording_page.dart';
@@ -6,11 +10,50 @@ import 'import_audio_page.dart';
 import 'summary_page.dart';
 import 'history.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   void navigateTo(BuildContext context, Widget page) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+  }
+
+  User? _user;
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? userJson = prefs.getString("user");
+
+    User loadedUser;
+
+    if (userJson != null && userJson.isNotEmpty && userJson != 'null') {
+      final Map<String, dynamic> userMap = jsonDecode(userJson);
+      loadedUser = User.fromJson(userMap);
+    } else {
+      loadedUser = User(
+        id: 0,
+        name: 'Guest',
+        email: '',
+        profileUrl: '',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        _user = loadedUser;
+      });
+    }
   }
 
   Widget buildFeatureCard({
@@ -99,12 +142,15 @@ class HomePage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Welcome", style: TextStyle(color: Colors.grey)),
+                        const Text(
+                          "Welcome",
+                          style: TextStyle(color: Colors.grey),
+                        ),
                         Text(
-                          "Harry! 👋",
+                          "${_user?.name ?? 'Guest'} 👋",
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -117,9 +163,15 @@ class HomePage extends StatelessWidget {
                       height: 40,
                       decoration: BoxDecoration(
                         color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(20),
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                            _user?.profileUrl ??
+                                'https://via.placeholder.com/150',
+                          ),
+                        ),
                       ),
-                      child: const Icon(Icons.person),
                     ),
                   ],
                 ),
