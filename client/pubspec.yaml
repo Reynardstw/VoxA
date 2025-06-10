@@ -48,3 +48,4 @@ flutter:
     - assets/icons/mic_record.png
     - assets/animations/loading.json
     - images/icon.png
+    - .env

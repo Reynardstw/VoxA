@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SummaryPage extends StatefulWidget {
   final String? transcribedText;
@@ -59,7 +58,7 @@ class _SummaryPageState extends State<SummaryPage> {
 
     final response = await http.post(
       Uri.parse(
-        'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+        'https://router.huggingface.co/hf-inference/models/sshleifer/distilbart-cnn-12-6',
       ),
       headers: {
         'Authorization': 'Bearer $apiKey',
@@ -68,6 +67,8 @@ class _SummaryPageState extends State<SummaryPage> {
       body: jsonEncode({"inputs": text}),
     );
 
+    print("Status code: ${response.statusCode}");
+    print("Body: ${response.body}");
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data is List && data.isNotEmpty && data[0]['summary_text'] != null) {
