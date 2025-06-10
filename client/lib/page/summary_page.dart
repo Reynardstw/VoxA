@@ -112,7 +112,7 @@ class _SummaryPageState extends State<SummaryPage> {
         },
         body: jsonEncode({'title': 'Summary', 'content': summary}),
       );
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Ringkasan berhasil disimpan.")),
