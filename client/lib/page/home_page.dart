@@ -9,6 +9,7 @@ import 'recording_page.dart';
 import 'import_audio_page.dart';
 import 'summary_page.dart';
 import 'history.dart';
+import 'package:client/model/history_count.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _totalSummaries = 0;
   void navigateTo(BuildContext context, Widget page) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
@@ -27,6 +29,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchTotalSummaries();
+  }
+
+  Future<void> _fetchTotalSummaries() async {
+    final count = await SummaryService.fetchTotalSummaries();
+    setState(() {
+      _totalSummaries = count;
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -251,7 +261,10 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     buildFeatureCard(
                       title: 'Your Summary',
-                      description: '27 summaries have been made...',
+                      description:
+                          _totalSummaries == 0
+                              ? 'Belum ada summary yang dibuat.'
+                              : '$_totalSummaries summaries have been made...',
                       iconPath: 'assets/icons/summary.png',
                       gradientStart: Colors.pink.shade100,
                       gradientEnd: Colors.purple.shade100,
