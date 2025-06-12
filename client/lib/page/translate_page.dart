@@ -106,217 +106,201 @@ class _TranslatePageState extends State<TranslatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    SizedBox(
-                      height: 180,
-                      width: double.infinity,
-                      child: Image.asset(
-                        flagImageMap[selectedCountry]!,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                        child: Container(color: Colors.black.withOpacity(0.3)),
-                      ),
-                    ),
-                    const Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          'VoxA Translator',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        title: const Text('VoxA Translator'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Input Field
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                controller: _controller,
+                onChanged: autoTranslate,
+                maxLines: null,
+                decoration: InputDecoration(
+                  hintText: 'Enter text to translate',
+                  prefixIcon:
+                      detectedLangCode == null
+                          ? const Icon(Icons.language)
+                          : Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              langIconMap[detectedLangCode!] ??
+                                  'assets/flags/america.png',
+                              width: 24,
+                              height: 24,
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Container(
-                    height: 120,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Scrollbar(
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
-                        child: TextField(
-                          controller: _controller,
-                          onChanged: autoTranslate,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Enter text to translate',
-                            prefixIcon:
-                                detectedLangCode == null
-                                    ? const Icon(Icons.language)
-                                    : Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Image.asset(
-                                        langIconMap[detectedLangCode!] ??
-                                            'assets/flags/america.png',
-                                        width: 24,
-                                        height: 24,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFD8EAFE), Color(0xFFE8E6F9)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.black12, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DropdownButton<String>(
-                          value: selectedCountry,
-                          isExpanded: true,
-                          underline: Container(
-                            height: 1,
-                            color: Colors.black26,
-                          ),
-                          onChanged: (String? newValue) {
-                            setState(() => selectedCountry = newValue!);
-                            autoTranslate(_controller.text);
-                          },
-                          items:
-                              flagImageMap.keys
-                                  .map<DropdownMenuItem<String>>(
-                                    (String value) => DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 100,
-                          child: SingleChildScrollView(
-                            child:
-                                translatedText.isEmpty
-                                    ? const Text(
-                                      'Translation result will appear here...',
-                                      style: TextStyle(fontSize: 16),
-                                    )
-                                    : Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            translatedText,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.copy,
-                                                size: 20,
-                                              ),
-                                              tooltip: 'Copy',
-                                              onPressed: () {
-                                                Clipboard.setData(
-                                                  ClipboardData(
-                                                    text: translatedText,
-                                                  ),
-                                                );
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      'Copied to clipboard',
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.volume_up,
-                                                size: 20,
-                                              ),
-                                              tooltip: 'Speak',
-                                              onPressed: _speakTranslatedText,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 100),
-              ],
-            ),
-          ),
-          const Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Center(
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.indigo,
-                    radius: 30,
-                    child: Icon(Icons.mic, color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+
+            // Bahasa Tujuan (Deretan Bendera)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children:
+                      flagImageMap.entries.map((entry) {
+                        final selected = selectedCountry == entry.key;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedCountry = entry.key;
+                              autoTranslate(_controller.text);
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color:
+                                    selected
+                                        ? Colors.indigo
+                                        : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                entry.value,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                ),
+              ),
+            ),
+
+            // Hasil Terjemahan (Bahasa + Bendera + Box)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors:
+                        selectedCountry == 'Indonesia 🇮🇩'
+                            ? [Colors.red.shade100, Colors.white]
+                            : selectedCountry == 'United States 🇺🇸'
+                            ? [Colors.blue.shade100, Colors.white]
+                            : selectedCountry == 'Japan 🇯🇵'
+                            ? [Colors.white, Colors.red.shade100]
+                            : selectedCountry == 'France 🇫🇷'
+                            ? [Colors.blue.shade100, Colors.red.shade100]
+                            : selectedCountry == 'Spain 🇪🇸'
+                            ? [Colors.red.shade100, Colors.yellow.shade100]
+                            : [Colors.grey.shade200, Colors.grey.shade100],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Bahasa + bendera dalam satu baris
+                    Row(
+                      children: [
+                        Text(
+                          selectedCountry.split(' ').first,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Image.asset(
+                          flagImageMap[selectedCountry]!,
+                          width: 28,
+                          height: 20,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Box hasil terjemahan
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              translatedText.isEmpty
+                                  ? 'Translation result will appear here...'
+                                  : translatedText,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.copy, size: 20),
+                                tooltip: 'Copy',
+                                onPressed: () {
+                                  Clipboard.setData(
+                                    ClipboardData(text: translatedText),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Copied to clipboard'),
+                                    ),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.volume_up, size: 20),
+                                tooltip: 'Speak',
+                                onPressed: _speakTranslatedText,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }

@@ -165,7 +165,6 @@ class _SummaryPageState extends State<SummaryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // CARD 1: Input
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -205,7 +204,6 @@ class _SummaryPageState extends State<SummaryPage> {
             ),
             const SizedBox(height: 20),
 
-            // Tombol Ringkas
             ElevatedButton.icon(
               onPressed:
                   _isSummarizing
@@ -251,8 +249,6 @@ class _SummaryPageState extends State<SummaryPage> {
             ),
             const SizedBox(height: 20),
 
-            // CARD 2: Output
-            // CARD Ringkasan Otomatis: (judul + isi dalam satu container gradient)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -283,9 +279,7 @@ class _SummaryPageState extends State<SummaryPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(
-                        0.6,
-                      ), // agar tetap ada kontras
+                      color: Colors.white.withOpacity(0.6),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.black12),
                     ),
@@ -297,7 +291,6 @@ class _SummaryPageState extends State<SummaryPage> {
 
             const SizedBox(height: 12),
 
-            // Aksi Copy + TTS
             Row(
               children: [
                 ElevatedButton.icon(

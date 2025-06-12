@@ -50,6 +50,16 @@ class _RecordingPageState extends State<RecordingPage> {
     } catch (_) {}
   }
 
+  void _resetRecording() {
+    _timer?.cancel();
+    _recorder.stopRecorder();
+    setState(() {
+      _duration = Duration.zero;
+      isRecording = false;
+      _filePath = null;
+    });
+  }
+
   Future<void> _initPlayer() async {
     await _player.openPlayer();
     _isPlayerInitialized = true;
@@ -167,40 +177,43 @@ class _RecordingPageState extends State<RecordingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 32),
-            SizedBox(
-              height: 120,
-              width: 120,
-              child:
-                  isRecording
-                      ? Lottie.asset('assets/animations/mic.json')
-                      : Image.asset('assets/icons/mic_record.png'),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
             ),
+
+            const SizedBox(height: 180),
+
+            Center(
+              child: SizedBox(
+                height: 210,
+                width: 210,
+                child:
+                    isRecording
+                        ? Lottie.asset('assets/animations/mic.json')
+                        : Image.asset('assets/icons/mic_record.png'),
+              ),
+            ),
+
             const SizedBox(height: 12),
+
             Text(
               _formatDuration(_duration),
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Colors.indigo,
               ),
             ),
-            const SizedBox(height: 48),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 40),
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.indigo.shade50,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text(
-                  "Gelombang suara (placeholder)",
-                  style: TextStyle(color: Colors.indigo),
-                ),
-              ),
-            ),
-            const Spacer(),
+
+            const SizedBox(height: 24),
+
             if (_isProcessing)
               Lottie.asset('assets/animations/loading.json', width: 120)
             else ...[
@@ -223,24 +236,52 @@ class _RecordingPageState extends State<RecordingPage> {
                           }
                         },
               ),
-              ElevatedButton.icon(
-                onPressed:
-                    (!_isRecorderInitialized || _isProcessing)
-                        ? null
-                        : _stopRecording,
-                icon: const Icon(Icons.stop),
-                label: const Text("Stop Recording"),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.redAccent,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed:
+                        (!_isRecorderInitialized || _isProcessing)
+                            ? null
+                            : _stopRecording,
+                    icon: const Icon(Icons.stop),
+                    label: const Text("Stop Recording"),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.redAccent,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 12,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade200,
+                      border: Border.all(
+                        color: Colors.grey.shade600,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.restart_alt),
+                      tooltip: 'Reset',
+                      iconSize: 24,
+                      color: Colors.grey.shade800,
+                      onPressed:
+                          (!_isRecorderInitialized || _isProcessing)
+                              ? null
+                              : _resetRecording,
+                    ),
+                  ),
+                ],
               ),
             ],
-            const SizedBox(height: 48),
+
+            const Spacer(),
           ],
         ),
       ),

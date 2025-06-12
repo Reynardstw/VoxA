@@ -15,7 +15,7 @@ class _LoadingPageState extends State<LoadingPage> {
     "Input diterima. Memproses...",
     "Ringkasan sedang disiapkan.",
     "Mengoptimalkan inti informasi.",
-    "Tugas selesai. Siap digunakan.", // kalimat terakhir: tidak dihapus
+    "Tugas selesai. Siap digunakan.",
   ];
 
   double progress = 0.0;
@@ -67,7 +67,6 @@ class _LoadingPageState extends State<LoadingPage> {
         } else {
           typingTimer?.cancel();
 
-          // Jika ini kalimat terakhir, langsung ke halaman
           if (currentTextIndex == texts.length - 1) {
             Future.delayed(const Duration(seconds: 1), () {
               if (mounted) {
@@ -83,7 +82,6 @@ class _LoadingPageState extends State<LoadingPage> {
               }
             });
           } else {
-            // Kalau belum terakhir, lanjut hapus dari kanan
             Future.delayed(const Duration(seconds: 1), startErasing);
           }
         }
@@ -140,7 +138,7 @@ class _LoadingPageState extends State<LoadingPage> {
 
             SizedBox(
               height: 24,
-              width: double.infinity, // biar memenuhi lebar layar
+              width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 80),
                 child: Text(
