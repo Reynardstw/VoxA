@@ -90,33 +90,63 @@ class _HistoryPageState extends State<HistoryPage> {
                   return Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: const [
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFF7C5DD),
+                          Color(0xFFEBC2F8),
+                        ], // warna background dari gambar ke-3
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
                         BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const [
+                            Icon(
+                              Icons.note_alt_outlined,
+                              size: 32,
+                              color: Color(0xFF2C11A6),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 16,
+                              color: Color(0xFF2C11A6),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         Text(
-                          'Judul: ${summary.title}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey.shade700,
+                          summary.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Color(
+                              0xFF2C11A6,
+                            ), // warna ungu tua untuk judul
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Ringkasan:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          summary.content,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                Colors
+                                    .grey
+                                    .shade800, // warna abu gelap untuk konten ringkasan
+                          ),
                         ),
-                        Text(summary.content),
                       ],
                     ),
                   );

@@ -129,11 +129,11 @@ Make sure:
 
 ## 🌍 Roadmap
 
-* [ ] Audio recording & upload
-* [ ] Basic summarization
-* [ ] Transcription with punctuation
-* [ ] Speaker diarization
-* [ ] Language auto-detection
+* [x] Audio recording & upload
+* [x] Basic summarization
+* [x] Transcription with punctuation
+* [x] Speaker diarization
+* [x] Language auto-detection
 * [ ] Offline mode
 * [ ] Chat-based Q\&A over summaries
 
