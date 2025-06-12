@@ -165,20 +165,47 @@ class _SummaryPageState extends State<SummaryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Masukkan atau ubah teks:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _controller,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                hintText: "Tulis teks transkripsi di sini...",
-                border: OutlineInputBorder(),
+            // CARD 1: Input
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFF1C1), Color(0xFFFFD1D1)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Masukkan atau ubah teks:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _controller,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      hintText: "Tulis teks transkripsi di sini...",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
+
+            // Tombol Ringkas
             ElevatedButton.icon(
               onPressed:
                   _isSummarizing
@@ -223,22 +250,54 @@ class _SummaryPageState extends State<SummaryPage> {
               label: Text(_isSummarizing ? "Memproses..." : "Ringkas"),
             ),
             const SizedBox(height: 20),
-            const Text(
-              "Ringkasan Otomatis:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+
+            // CARD 2: Output
+            // CARD Ringkasan Otomatis: (judul + isi dalam satu container gradient)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFFF1C1), Color(0xFFFFD1D1)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Text(_summary.isEmpty ? "-" : _summary),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Ringkasan Otomatis:",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(
+                        0.6,
+                      ), // agar tetap ada kontras
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black12),
+                    ),
+                    child: Text(_summary.isEmpty ? "-" : _summary),
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 12),
+
+            // Aksi Copy + TTS
             Row(
               children: [
                 ElevatedButton.icon(

@@ -299,7 +299,11 @@ class _HomePageState extends State<HomePage> {
                       iconPath: 'assets/icons/translate.png',
                       gradientStart: Colors.blue.shade100,
                       gradientEnd: Colors.purple.shade100,
-                      onTap: () => navigateTo(context, const TranslatePage()),
+                      onTap:
+                          () => navigateTo(
+                            context,
+                            const TranslatePage(textToTranslate: ''),
+                          ),
                     ),
                   ],
                 ),

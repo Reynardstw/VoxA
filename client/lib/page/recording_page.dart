@@ -239,24 +239,6 @@ class _RecordingPageState extends State<RecordingPage> {
                   ),
                 ),
               ),
-              if (_filePath != null &&
-                  File(_filePath!).existsSync() &&
-                  _isPlayerInitialized)
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    await _player.startPlayer(fromURI: _filePath!);
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text("Uji Putar Rekaman"),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 10,
-                    ),
-                  ),
-                ),
             ],
             const SizedBox(height: 48),
           ],

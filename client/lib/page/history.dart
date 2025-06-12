@@ -1,9 +1,10 @@
 import 'dart:convert';
-
 import 'package:client/model/summary.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'package:client/page/translate_page.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -91,17 +92,14 @@ class _HistoryPageState extends State<HistoryPage> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFF7C5DD),
-                          Color(0xFFEBC2F8),
-                        ], // warna background dari gambar ke-3
+                        colors: [Color(0xFFF7C5DD), Color(0xFFEBC2F8)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 6,
                           offset: const Offset(0, 4),
                         ),
@@ -118,11 +116,6 @@ class _HistoryPageState extends State<HistoryPage> {
                               size: 32,
                               color: Color(0xFF2C11A6),
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 16,
-                              color: Color(0xFF2C11A6),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -131,9 +124,7 @@ class _HistoryPageState extends State<HistoryPage> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Color(
-                              0xFF2C11A6,
-                            ), // warna ungu tua untuk judul
+                            color: Color(0xFF2C11A6),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -141,11 +132,48 @@ class _HistoryPageState extends State<HistoryPage> {
                           summary.content,
                           style: TextStyle(
                             fontSize: 14,
-                            color:
-                                Colors
-                                    .grey
-                                    .shade800, // warna abu gelap untuk konten ringkasan
+                            color: Colors.grey.shade800,
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              tooltip: 'Copy',
+                              icon: const Icon(Icons.copy, size: 20),
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: summary.content),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Copied to clipboard'),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              tooltip: 'Translate',
+                              icon: Image.asset(
+                                'assets/icons/translate.png',
+                                width: 20,
+                                height: 20,
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => TranslatePage(
+                                          textToTranslate: summary.content,
+                                        ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),

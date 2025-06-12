@@ -5,7 +5,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/services.dart';
 
 class TranslatePage extends StatefulWidget {
-  const TranslatePage({super.key});
+  final String textToTranslate; // menerima parameter teks
+
+  const TranslatePage({super.key, required this.textToTranslate});
 
   @override
   State<TranslatePage> createState() => _TranslatePageState();
@@ -13,7 +15,7 @@ class TranslatePage extends StatefulWidget {
 
 class _TranslatePageState extends State<TranslatePage> {
   final FlutterTts flutterTts = FlutterTts();
-  final TextEditingController _controller = TextEditingController();
+  late TextEditingController _controller;
   final GoogleTranslator translator = GoogleTranslator();
 
   String? detectedLangCode;
@@ -47,8 +49,14 @@ class _TranslatePageState extends State<TranslatePage> {
   @override
   void initState() {
     super.initState();
+    _controller = TextEditingController(text: widget.textToTranslate);
     flutterTts.setPitch(1.0);
     flutterTts.setSpeechRate(0.5);
+
+    // Langsung auto translate saat dibuka
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      autoTranslate(widget.textToTranslate);
+    });
   }
 
   Future<void> autoTranslate(String input) async {

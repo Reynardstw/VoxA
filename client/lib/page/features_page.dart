@@ -21,7 +21,7 @@ class FeaturesPage extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: bgColor.withOpacity(0.15),
+          color: bgColor.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.grey.shade300),
         ),
@@ -90,7 +90,8 @@ class FeaturesPage extends StatelessWidget {
               'assets/icons/translate.png',
               'Translate to other languages',
               Colors.orange,
-              () => navigateTo(context, const TranslatePage()),
+              () =>
+                  navigateTo(context, const TranslatePage(textToTranslate: "")),
             ),
             buildFeatureTile(
               'assets/icons/record.png',
